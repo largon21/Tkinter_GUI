@@ -1,4 +1,4 @@
-# Author: Maciej Madej
+
 
 """
 Script reads XP.CNF and creates file counters.txt, which contains
