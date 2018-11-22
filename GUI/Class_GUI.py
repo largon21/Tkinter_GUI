@@ -2,7 +2,7 @@
 from tkinter import *
 
 class GUI:
-    def __init__(self , frame, but_name ,defText , chanText, colour='thistle2' ):
+    def __init__(self , frame, but_name ,defText , chanText, colour='slate gray' ):
         self.colour= colour
         self.frame = frame  # ramka na ktorej rozmiescimy checkbuttons
         # self.func = func    #funkcja do wykonania gdy zaznaczymy check box i wcisniemy ok
@@ -73,6 +73,9 @@ class GUI:
         #print(self.changeText)
 
     def Place(self, nr): #zwraca liste (referencje) objektow Entry waszystkich wejsc
+
+
+
         ########## ROW 0 ###################
         row0=4*(nr-1)
         self.CheckBut.grid(row=row0, column=0, columnspan=3, sticky=W) #checkbutton
@@ -80,7 +83,7 @@ class GUI:
         ########### ROW 1 ##################
         row1 =1 + 4 * (nr - 1)
         Label(self.frame, text='Default: ', bg=self.colour).grid(row=row1, column=0, sticky=W) #description 'Default: '
-        self.defaultLabel.grid(row=row1, column=1, sticky=W) #linia 'Defaultowa', napis po opisie 'Default: '
+        self.defaultLabel.grid(row=row1, column=1, columnspan=3, sticky=W) #linia 'Defaultowa', napis po opisie 'Default: '
 
         ########## ROW 2 ##################
         row2 = 2 + 4 * (nr - 1)

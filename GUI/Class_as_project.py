@@ -2,28 +2,45 @@
 import shutil
 import os
 from as_lib import download_list
+from tkinter.filedialog import askdirectory
 # from as_lib import download_dict
 
 class AS_project:
 ######################################## init ############################################################
-    def __init__(self, project_name):
-        self.dir_project = r'C:\srm2\reg\%s\\' % project_name #sciezka do projektu
+    def __init__(self, project_name=''):
+        self.dir_project = project_name #r'C:\srm2\reg\%s\\' % project_name sciezka do projektu
+        #self.dir_project= project_name
 
         self.dir_cfiles = r'C:\srm2\reg\files\{0}'
         self.dir_settings = self.dir_cfiles.format(r'settings\\')
 
-        if os.path.exists(self.dir_project) and project_name.strip() != '': #jesli nie istnieje projekt albo nazwa jest blednie podana to nie otwiera nic
-            self.existflag = True
-            self.CRMfiles_names = []  # nazwy plikow ktore sa wklejane TYLKO JESLI SA CRM do katalogu projektu po eksporcie
-            self.files_names = []  # nazwy plikow ktore sa wklejane ZAWSZE do katalogu projektu po eksporcie
+######################################## Choosdir #######################################################
+    def chooseDirectory(self, stringvar):  # zwracac false jesli projekt nie istnieje
+        askdir = askdirectory()
+        if os.path.exists(askdir):
+            self.dir_project = askdir + '/'
+            stringvar.set(self.dir_project[:-1])
 
-            # CNFf ={r'SADAT.CNF':r'#define NUM_USER_PARM   ', r'VMFUNC.C':r'const codesize = ', r'AMSEC2.CNF': r':D5  ', r'XP.CNF': r'CALL("XCP.INI", "'} #nazwa pliku i linia ktora zmieniam
+######################################## Choosdir #######################################################
+    def StartCheck(self):  # zwracac false jesli projekt nie istnieje
+            if os.path.exists(self.dir_project) and self.dir_project!= '':  # and project_name.strip() != '' jesli nie istnieje projekt albo nazwa jest blednie podana to nie otwiera nic
+                self.existflag = True
+                self.CRMfiles_names = []  # nazwy plikow ktore sa wklejane TYLKO JESLI SA CRM do katalogu projektu po eksporcie
+                self.files_names = []  # nazwy plikow ktore sa wklejane ZAWSZE do katalogu projektu po eksporcie
 
-            download_list(self.dir_settings + 'CRMfiles_names.txt', self.CRMfiles_names)  # pobranie nazw plikow crm i wpisania do listy w celu kopiowania
-            download_list(self.dir_settings + 'files_names.txt', self.files_names)  # pobranie nazw plikow i wpisania do lisy w celu kopiowania
-        else:
-            self.existflag=False
-            print('projekt nie istnieje')
+                # CNFf ={r'SADAT.CNF':r'#define NUM_USER_PARM   ', r'VMFUNC.C':r'const codesize = ', r'AMSEC2.CNF': r':D5  ', r'XP.CNF': r'CALL("XCP.INI", "'} #nazwa pliku i linia ktora zmieniam
+
+                download_list(self.dir_settings + 'CRMfiles_names.txt',
+                              self.CRMfiles_names)  # pobranie nazw plikow crm i wpisania do listy w celu kopiowania
+                download_list(self.dir_settings + 'files_names.txt',
+                              self.files_names)  # pobranie nazw plikow i wpisania do lisy w celu kopiowania
+            else:
+                self.existflag = False
+                print('projekt nie istnieje')
+######################################## CheckProDir #######################################################
+    def CheckProDir(self): #zwracac sciezke projektu w postaci stringa
+        name=self.dir_project
+        return name
 
 ######################################## CheckFlag #######################################################
     def CheckFlag(self): #zwracac false jesli projekt nie istnieje
@@ -160,7 +177,7 @@ class AS_project:
             except IOError:
                 print('błąd IOError - otwarcia')
         else:
-            print('Brak pliku XP.CNF w katalogu files')
+            print('Brak pliku AMSEC2.CNF w katalogu files')
 
 ######################################## VMFUNC ##########################################################
     def changeVMFUNC(self, codesize=4096):
@@ -203,7 +220,7 @@ class AS_project:
             except IOError:
                 print('błąd IOError - otwarcia')
         else:
-            print('Brak pliku XP.CNF w katalogu files')
+            print('Brak pliku VMFUNC.C w katalogu files')
 
 ######################################## SADAT ###########################################################
     def changeSADAT(self, NUM_USER_PARM=8):
@@ -246,7 +263,7 @@ class AS_project:
             except IOError:
                 print('błąd IOError - otwarcia')
         else:
-            print('Brak pliku XP.CNF w katalogu files')
+            print('Brak pliku SADAT.CNF w katalogu files')
 
 ######################################## insertFILES #####################################################
     def insertFILES(self):
@@ -265,3 +282,35 @@ class AS_project:
                     shutil.copy(self.dir_cfiles.format(name), self.dir_project)
             except:
                 print('\nBlad kopiowania pliku {0}'.format(name))
+
+######################################## insert #####################################################
+    def insertLines(self, fileName, firstLine, lastLine, linesToPass):
+        path = self.dir_project + fileName
+        stopflag=False
+
+        if os.path.exists(path) and self.existflag:
+            try:
+                file = open(path, 'r+')
+                try:
+                    lines=file.readlines()
+                    file.seek(0)
+
+                    for line in lines:
+                        if line.find(firstLine) != -1:
+                            file.writelines(linesToPass)
+                            stopflag=True
+
+                        elif stopflag:
+                            if line.find(lastLine) != -1:
+                                stopflag=False
+
+                        elif not (stopflag): #this flag is romoving also to leave this line change on if
+                            file.write(line)
+
+                finally:
+                    file.truncate()
+                    file.close()
+            except IOError:
+                print('błąd IOError - otwarcia')
+        else:
+            print('Brak pliku w katalogu files')

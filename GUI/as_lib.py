@@ -1,5 +1,7 @@
 # Author: Artur Stankiewicz
 
+
+
 def download_list(dir, where): #funkcja pobierajaca linie z pliku tekstowego o sciezce dir i wpisuje linie do listy podanej w drugim argumencie
     w=[]
     w=where
@@ -42,3 +44,5 @@ def download_dict(dir, where): #funkcja pobierajaca linie z pliku tekstowego o s
             file.close()
     except IOError:
         print('Błąd IOError: '+ dir)
+
+

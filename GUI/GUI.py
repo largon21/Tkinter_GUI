@@ -1,31 +1,75 @@
 # Author: Artur Stankiewicz
+
 from Class_GUI import *
 from Class_as_project import *
 from counters2 import *
+from tkinter import *
+from as_lib import *
+
 
 
 CounterApp = App()
-
+project= AS_project()
 
 ########################## configuration ############################
-WinColour='tomato3'
-LefSideColour='thistle2'
-ConterButColour='RosyBrown3'
+WinColour='gray23'
+LefSideColour='slate gray'
+ConterButColour='thistle4'
 ########################## ROOT #####################################
 window = Tk()
-window.title('Ale masz pythona')
-window.geometry("900x650+200+50")
+LefSide=Frame(window,  bg=LefSideColour, width=300, bd=20) #text='options',
+TopSide=Frame(window, bg=WinColour,width=200,  height=510) #WinColour width= 700, height=500,  //, relief=RIDGE, pady=100, padx=250
+
+
+window.grid_rowconfigure(0, weight=1)
+window.grid_columnconfigure(0, weight=1)
+window.grid_columnconfigure(1, weight=1)
+
+window.title('Badz mechanikiem wsrod supermenow')
+window.geometry("900x530")
 window.config(bg=WinColour)
 
-#################### Nazwa projektu i entry #########################
-ProjectNameLabel= Label(window, text='Project name ', bg=WinColour)
-ProjectNameEntry=Entry(window)
+########################## MenuBAR #####################################
+menuBar= Menu(window)
+# display the menu
+window.config(menu=menuBar)
+
+menuBar.add_command(label='Counters', command= lambda : CounterApp.start()) #counter button
 
 
 
-#################### Miejsce na checkbuttons ########################
-LefSide=LabelFrame(window, text='options', width= 900 , height=300, bg=LefSideColour)
-LefSide.pack(side=TOP, fill=BOTH) #, fill=BOTH
+
+
+#################### Place for checkbuttons ########################
+
+LefSide.grid(row=0, column=0, stick='nswe') #, stick='nswe'
+TopSide.grid(row=0, column=1, stick='nswe') # TopSide.pack(side=RIGHT) # side=RIGHT, fill=BOTH
+
+# TopSide.grid(row=0, column=1, stick='nsew')
+# LefSide.rowconfigure(0, weight=1)
+# LefSide.columnconfigure(0, weight=1)
+# LefSide.pack(side=LEFT, fill=Y) #, fill=BOTH
+# LefSide.place(relx=0, relheight=1, relwidth=0.5)
+# BotSide=Frame(window, width= 700, height=500, bg=WinColour) #width= 700, height=500,
+# BotSide.place(relx=0.7, rely=0.5, relwidth=1, relheight=1)
+# BotSide.grid(row=1, column=1,stick='nsew')
+
+
+
+
+
+
+
+CurProjectName=StringVar()
+CurProjectName.set('')
+#################### Project and entry names #########################
+ProjectNameLabel= Label(TopSide, text='Project path: ', bg=WinColour, fg='white', font=15, pady=20)
+ProjectNameEntry=Button(TopSide, text='search project', command= lambda : project.chooseDirectory(CurProjectName), bg='black', fg='white', width=45  )
+CurProjectNameLabel= Label(TopSide, textvariable=CurProjectName, bg=WinColour, fg='red2', font=15) #current project name
+
+
+
+
 
 #################### Checkbuttons ###################################
 SADAT=GUI(LefSide, 'SADAT.CNF', '#define NUM_USER_PARM   8', '#define NUM_USER_PARM')
@@ -54,18 +98,16 @@ PastCRMFlag= IntVar()
 PasteCRM = Checkbutton(LefSide, text='Past CRM', variable=PastCRMFlag, bg=LefSideColour)
 PasteCRM.grid(row=22, column=0, columnspan=3, sticky=W)
 
-Counter = Button(window, text='Counters', command= lambda : CounterApp.start(), bg=ConterButColour)
-Label(window, bg=WinColour).pack()
-Counter.pack()
+ProjectNameLabel.pack(side=TOP)
+CurProjectNameLabel.pack(side=TOP, anchor=CENTER)
+ProjectNameEntry.pack(side=TOP, fill=X,  ipady=10, padx=20) #
 
-
-
-ProjectNameLabel.pack()
-ProjectNameEntry.pack()
-
-################### OK button ######################################
+################### OK button function ######################################
 def ButFun():
-    project= AS_project(ProjectNameEntry.get())
+    project.StartCheck()
+    NameOfProject=project.CheckProDir()
+    NameOfProject=NameOfProject[12:-1]
+
     project_exist= project.CheckFlag()
     if project_exist:
         if SADAT.Check():
@@ -118,23 +160,43 @@ def ButFun():
                 project.insertCRM()
             except:
                 pass
+        st = ('Project: {} gotowy KAPITANIE :D').format(NameOfProject)
+        maste = Tk()
+        maste.title('Project name')
+        maste.config(bg='SeaGreen3')
+        maste.geometry("550x250+200+100")
+        ms = Message(maste, text=st)
+        Exit = Button(maste, text='OK', command=maste.destroy, bg='SeaGreen2', width=10, height=3)
+        ms.config(bg='SeaGreen3', font=('times', 24, 'italic'))
+        ms.pack(fill=BOTH)
+        Exit.pack()
 
 
 
     else:
-        str =('Project: {} nie istnieje lub podaleś niewłaściwą nazwę ').format(ProjectNameEntry.get())
+        str =('Project: {} nie istnieje lub podaleś niewłaściwą nazwę ').format(NameOfProject)
         master = Tk()
         master.title('Project name')
-        master.geometry("400x150+200+100")
+        master.config(bg='firebrick1')
+
+        master.geometry("550x250+200+100")
         msg = Message(master, text=str)
-        msg.config(bg='deep pink', font=('times', 24, 'italic'))
+        Exit = Button(master, text='OK', command=master.destroy, bg='firebrick3', width=10, height=3)
+        msg.config(bg='firebrick1', font=('times', 24, 'italic'))
         msg.pack(fill=BOTH)
+        Exit.pack()
+
+
+
+OKbut=Button(TopSide, text='OK', command=ButFun, width=8, height=3, bd=4) #, command=print_but
 
 
 
 
-OKbut=Button(window, text='OK', command=ButFun) #, command=print_but
-OKbut.pack()
+OKbut.pack(side=TOP)
+Label(TopSide, bg=WinColour).pack()
+
+
 
 window.mainloop()
 
